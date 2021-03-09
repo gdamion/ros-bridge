@@ -11,6 +11,8 @@ handle a marker sensor
 
 from carla_ros_bridge.pseudo_actor import PseudoActor
 from carla_ros_bridge.traffic_participant import TrafficParticipant
+from carla_ros_bridge.traffic import Traffic
+from carla_ros_bridge.traffic import TrafficLight
 
 from visualization_msgs.msg import MarkerArray
 
@@ -75,5 +77,9 @@ class MarkerSensor(PseudoActor):
         marker_array_msg = MarkerArray()
         for actor in self.actor_list.values():
             if isinstance(actor, TrafficParticipant):
+                marker_array_msg.markers.append(actor.get_marker())
+            elif isinstance(actor, Traffic):
+                marker_array_msg.markers.append(actor.get_marker())
+            elif isinstance(actor, TrafficLight):
                 marker_array_msg.markers.append(actor.get_marker())
         self.marker_publisher.publish(marker_array_msg)

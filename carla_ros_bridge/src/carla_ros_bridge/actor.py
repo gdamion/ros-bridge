@@ -14,6 +14,11 @@ from geometry_msgs.msg import TransformStamped  # pylint: disable=import-error
 from carla_ros_bridge.pseudo_actor import PseudoActor
 import carla_common.transforms as trans
 
+from derived_object_msgs.msg import Object
+from shape_msgs.msg import SolidPrimitive
+from std_msgs.msg import ColorRGBA
+from visualization_msgs.msg import Marker
+import carla_common.transforms as trans
 
 class Actor(PseudoActor):
 
@@ -112,3 +117,85 @@ class Actor(PseudoActor):
         :rtype: int64
         """
         return self.carla_actor_id
+
+###
+
+    def get_object_info(self):
+        """
+        Function to send object messages of this traffic participant.
+
+        A derived_object_msgs.msg.Object is prepared to be published via '/carla/objects'
+
+        :return:
+        """
+        obj = Object(header=self.get_msg_header("map"))
+        # ID
+        obj.id = self.get_id()
+        # Pose
+        obj.pose = self.get_current_ros_pose()
+        # Twist
+        obj.twist = self.get_current_ros_twist()
+        # Acceleration
+        obj.accel = self.get_current_ros_accel()
+        # Shape
+        obj.shape.type = SolidPrimitive.BOX
+        obj.shape.dimensions.extend([
+            self.carla_actor.bounding_box.extent.x * 2.0,
+            self.carla_actor.bounding_box.extent.y * 2.0,
+            self.carla_actor.bounding_box.extent.z * 2.0])
+
+        # Classification if available in attributes
+        if self.get_classification() != Object.CLASSIFICATION_UNKNOWN:
+            obj.object_classified = True
+            obj.classification = self.get_classification()
+            obj.classification_certainty = 255
+            obj.classification_age = self.classification_age
+
+        return obj
+
+    def get_classification(self):  # pylint: disable=no-self-use
+        """
+        Function to get object classification (overridden in subclasses)
+        """
+        return Object.CLASSIFICATION_UNKNOWN
+
+    def get_marker_color(self):  # pylint: disable=no-self-use
+        """
+        Function (override) to return the color for marker messages.
+
+        :return: default color used by traffic participants
+        :rtpye : std_msgs.msg.ColorRGBA
+        """
+        color = ColorRGBA()
+        color.r = 0.
+        color.g = 255.
+        color.b = 255.
+        return color
+
+    def get_marker_pose(self):
+        """
+        Function to return the pose for traffic participants.
+
+        :return: the pose of the traffic participant.
+        :rtype: geometry_msgs.msg.Pose
+        """
+        return trans.carla_transform_to_ros_pose(self.carla_actor.get_transform())
+
+    def get_marker(self):
+        """
+        Helper function to create a ROS visualization_msgs.msg.Marker for the actor
+
+        :return:
+        visualization_msgs.msg.Marker
+        """
+        marker = Marker(header=self.get_msg_header(frame_id="map"))
+        marker.color = self.get_marker_color()
+        marker.color.a = 0.3
+        marker.id = self.get_id()
+        marker.type = Marker.CUBE
+
+        marker.pose = self.get_marker_pose()
+        marker.scale.x = self.carla_actor.bounding_box.extent.x * 2.0
+        marker.scale.y = self.carla_actor.bounding_box.extent.y * 2.0
+        marker.scale.z = self.carla_actor.bounding_box.extent.z * 2.0
+        return marker

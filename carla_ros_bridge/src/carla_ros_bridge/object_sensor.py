@@ -12,6 +12,8 @@ handle a object sensor
 from derived_object_msgs.msg import ObjectArray
 from carla_ros_bridge.vehicle import Vehicle
 from carla_ros_bridge.walker import Walker
+from carla_ros_bridge.traffic import Traffic
+from carla_ros_bridge.traffic import TrafficLight
 from carla_ros_bridge.pseudo_actor import PseudoActor
 
 
@@ -70,6 +72,15 @@ class ObjectSensor(PseudoActor):
         :return:
         """
         ros_objects = ObjectArray(header=self.get_msg_header("map"))
+        # for actor_id in self.actor_list.keys():
+        #     # currently only Vehicles and Walkers are added to the object array
+        #     if self.parent is None or self.parent.uid != actor_id:
+        #         actor = self.actor_list[actor_id]
+        #         if isinstance(actor, Vehicle):
+        #             ros_objects.objects.append(actor.get_object_info())
+        #         elif isinstance(actor, Walker):
+        #             ros_objects.objects.append(actor.get_object_info())
+
         for actor_id in self.actor_list.keys():
             # currently only Vehicles and Walkers are added to the object array
             if self.parent is None or self.parent.uid != actor_id:
@@ -78,4 +89,9 @@ class ObjectSensor(PseudoActor):
                     ros_objects.objects.append(actor.get_object_info())
                 elif isinstance(actor, Walker):
                     ros_objects.objects.append(actor.get_object_info())
+                # elif isinstance(actor, Traffic):
+                #     ros_objects.objects.append(actor.get_object_info())
+                # elif isinstance(actor, TrafficLight):
+                #     ros_objects.objects.append(actor.get_object_info())
+
         self.object_publisher.publish(ros_objects)
