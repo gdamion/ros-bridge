@@ -145,11 +145,11 @@ class Actor(PseudoActor):
             self.carla_actor.bounding_box.extent.z * 2.0])
 
         # Classification if available in attributes
-        if self.get_classification() != Object.CLASSIFICATION_UNKNOWN:
-            obj.object_classified = True
-            obj.classification = self.get_classification()
-            obj.classification_certainty = 255
-            obj.classification_age = self.classification_age
+        # if self.get_classification() != Object.CLASSIFICATION_UNKNOWN:
+        #     obj.object_classified = True
+        #     obj.classification = self.get_classification()
+        #     obj.classification_certainty = 255
+        #     obj.classification_age = self.classification_age
 
         return obj
 
