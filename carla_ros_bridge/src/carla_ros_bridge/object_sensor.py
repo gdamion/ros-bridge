@@ -9,7 +9,8 @@
 handle a object sensor
 """
 
-from derived_object_msgs.msg import ObjectArray
+# from derived_object_msgs.msg import ObjectArray
+from carla_msgs.msg import CarlaObjectKamazList
 from carla_ros_bridge.vehicle import Vehicle
 from carla_ros_bridge.walker import Walker
 from carla_ros_bridge.traffic import Traffic
@@ -26,7 +27,6 @@ class ObjectSensor(PseudoActor):
     def __init__(self, uid, name, parent, node, actor_list):
         """
         Constructor
-
         :param uid: unique identifier for this object
         :type uid: int
         :param name: name identiying this object
@@ -44,7 +44,7 @@ class ObjectSensor(PseudoActor):
                                            parent=parent,
                                            node=node)
         self.actor_list = actor_list
-        self.object_publisher = node.new_publisher(ObjectArray,
+        self.object_publisher = node.new_publisher(CarlaObjectKamazList,
                                                    self.get_topic_prefix())
 
     def destroy(self):
@@ -71,18 +71,18 @@ class ObjectSensor(PseudoActor):
         - tf global frame
         :return:
         """
-        ros_objects = ObjectArray(header=self.get_msg_header("map"))
+        # ros_objects = ObjectArray(header=self.get_msg_header("map"))
+        kamaz_objects = CarlaObjectKamazList()
         for actor_id in self.actor_list.keys():
-            # currently only Vehicles and Walkers are added to the object array
             if self.parent is None or self.parent.uid != actor_id:
                 actor = self.actor_list[actor_id]
                 if isinstance(actor, Vehicle):
-                    ros_objects.objects.append(actor.get_object_info())
+                    kamaz_objects.objects.append(actor.get_object_info())
                 elif isinstance(actor, Walker):
-                    ros_objects.objects.append(actor.get_object_info())
-                # elif isinstance(actor, Traffic):
-                #     ros_objects.objects.append(actor.get_object_info())
-                # elif isinstance(actor, TrafficLight):
-                #     ros_objects.objects.append(actor.get_object_info())
+                    kamaz_objects.objects.append(actor.get_object_info())
+                elif isinstance(actor, Traffic):
+                    kamaz_objects.objects.append(actor.get_object_info())
+                elif isinstance(actor, TrafficLight):
+                    kamaz_objects.objects.append(actor.get_object_info())
 
-        self.object_publisher.publish(ros_objects)
+        self.object_publisher.publish(kamaz_objects)

@@ -13,12 +13,12 @@ Base Classes to handle Actor objects
 from geometry_msgs.msg import TransformStamped  # pylint: disable=import-error
 from carla_ros_bridge.pseudo_actor import PseudoActor
 import carla_common.transforms as trans
+from carla_msgs.msg import CarlaObjectKamazInfo
 
-from derived_object_msgs.msg import Object
-from shape_msgs.msg import SolidPrimitive
 from std_msgs.msg import ColorRGBA
 from visualization_msgs.msg import Marker
 import carla_common.transforms as trans
+from shape_msgs.msg import SolidPrimitive
 
 class Actor(PseudoActor):
 
@@ -118,47 +118,6 @@ class Actor(PseudoActor):
         """
         return self.carla_actor_id
 
-###
-
-    def get_object_info(self):
-        """
-        Function to send object messages of this traffic participant.
-
-        A derived_object_msgs.msg.Object is prepared to be published via '/carla/objects'
-
-        :return:
-        """
-        obj = Object(header=self.get_msg_header("map"))
-        # ID
-        obj.id = self.get_id()
-        # Pose
-        obj.pose = self.get_current_ros_pose()
-        # Twist
-        obj.twist = self.get_current_ros_twist()
-        # Acceleration
-        obj.accel = self.get_current_ros_accel()
-        # Shape
-        obj.shape.type = SolidPrimitive.BOX
-        obj.shape.dimensions.extend([
-            self.carla_actor.bounding_box.extent.x * 2.0,
-            self.carla_actor.bounding_box.extent.y * 2.0,
-            self.carla_actor.bounding_box.extent.z * 2.0])
-
-        # Classification if available in attributes
-        # if self.get_classification() != Object.CLASSIFICATION_UNKNOWN:
-        #     obj.object_classified = True
-        #     obj.classification = self.get_classification()
-        #     obj.classification_certainty = 255
-        #     obj.classification_age = self.classification_age
-
-        return obj
-
-    def get_classification(self):  # pylint: disable=no-self-use
-        """
-        Function to get object classification (overridden in subclasses)
-        """
-        return Object.CLASSIFICATION_UNKNOWN
-
     def get_marker_color(self):  # pylint: disable=no-self-use
         """
         Function (override) to return the color for marker messages.
@@ -167,7 +126,7 @@ class Actor(PseudoActor):
         :rtpye : std_msgs.msg.ColorRGBA
         """
         color = ColorRGBA()
-        color.r = 0.
+        color.r = 255.
         color.g = 255.
         color.b = 255.
         return color
@@ -199,3 +158,40 @@ class Actor(PseudoActor):
         marker.scale.y = self.carla_actor.bounding_box.extent.y * 2.0
         marker.scale.z = self.carla_actor.bounding_box.extent.z * 2.0
         return marker
+
+    def get_classification(self):  # pylint: disable=no-self-use
+        """
+        Function to get object classification (overridden in subclasses)
+        """
+        return CarlaObjectKamazInfo.CLASSIFICATION_UNKNOWN
+
+    def get_status(self):  # pylint: disable=no-self-use
+        """
+        Function to get object classification (overridden in subclasses)
+        """
+        return CarlaObjectKamazInfo.STATUS_UNKNOWN
+
+    def get_object_info(self):
+        """
+        Function to send object messages of this traffic participant.
+        A derived_object_msgs.msg.Object is prepared to be published via '/carla/objects'
+        :return:
+        """
+        obj = CarlaObjectKamazInfo(header=self.get_msg_header("map"))
+        obj.id = self.get_id()
+
+        try:
+            obj.rolename = str(self.carla_actor.attributes.get('role_name'))
+        except ValueError:
+            pass
+
+        obj.type = self.carla_actor.type_id
+        obj.pose = self.get_current_ros_pose()
+        obj.shape.type = SolidPrimitive.BOX
+        obj.shape.dimensions.extend([
+            self.carla_actor.bounding_box.extent.x * 2.0,
+            self.carla_actor.bounding_box.extent.y * 2.0,
+            self.carla_actor.bounding_box.extent.z * 2.0])
+        obj.classification = self.get_classification()
+        obj.status = self.get_status()
+        return obj

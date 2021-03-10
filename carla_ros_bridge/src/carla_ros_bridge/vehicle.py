@@ -11,10 +11,10 @@ Classes to handle Carla vehicles
 """
 
 from std_msgs.msg import ColorRGBA
-from derived_object_msgs.msg import Object
 
 import carla_common.transforms as trans
 from carla_ros_bridge.traffic_participant import TrafficParticipant
+from carla_msgs.msg import CarlaObjectKamazInfo
 
 
 class Vehicle(TrafficParticipant):
@@ -26,30 +26,22 @@ class Vehicle(TrafficParticipant):
     def __init__(self, uid, name, parent, node, carla_actor):
         """
         Constructor
-
-        :param uid: unique identifier for this object
-        :type uid: int
-        :param name: name identiying this object
-        :type name: string
-        :param parent: the parent of this
-        :type parent: carla_ros_bridge.Parent
-        :param node: node-handle
-        :type node: carla_ros_bridge.CarlaRosBridge
+        get_classification
         :param carla_actor: carla vehicle actor object
         :type carla_actor: carla.Vehicle
         """
-        self.classification = Object.CLASSIFICATION_CAR
+        self.classification = CarlaObjectKamazInfo.CLASSIFICATION_UNKNOWN
         if 'object_type' in carla_actor.attributes:
             if carla_actor.attributes['object_type'] == 'car':
-                self.classification = Object.CLASSIFICATION_CAR
+                self.classification = CarlaObjectKamazInfo.CLASSIFICATION_CAR
             elif carla_actor.attributes['object_type'] == 'bike':
-                self.classification = Object.CLASSIFICATION_BIKE
+                self.classification = CarlaObjectKamazInfo.CLASSIFICATION_BIKE
             elif carla_actor.attributes['object_type'] == 'motorcycle':
-                self.classification = Object.CLASSIFICATION_MOTORCYCLE
+                self.classification = CarlaObjectKamazInfo.CLASSIFICATION_MOTORCYCLE
             elif carla_actor.attributes['object_type'] == 'truck':
-                self.classification = Object.CLASSIFICATION_TRUCK
+                self.classification = CarlaObjectKamazInfo.CLASSIFICATION_TRUCK
             elif carla_actor.attributes['object_type'] == 'other':
-                self.classification = Object.CLASSIFICATION_OTHER_VEHICLE
+                self.classification = CarlaObjectKamazInfo.CLASSIFICATION_OTHER_VEHICLE
 
         super(Vehicle, self).__init__(uid=uid,
                                       name=name,
@@ -65,9 +57,9 @@ class Vehicle(TrafficParticipant):
         :rtpye : std_msgs.msg.ColorRGBA
         """
         color = ColorRGBA()
-        color.r = 255.0
-        color.g = 0.0
-        color.b = 0.0
+        color.r = 0.0
+        color.g = 85.0
+        color.b = 255.0
         return color
 
     def get_marker_pose(self):
@@ -89,3 +81,6 @@ class Vehicle(TrafficParticipant):
         :return:
         """
         return self.classification
+
+    def get_status(self):  # pylint: disable=no-self-use
+        return CarlaObjectKamazInfo.STATUS_UNKNOWN

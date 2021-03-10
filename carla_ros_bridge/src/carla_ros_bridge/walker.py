@@ -10,11 +10,10 @@
 Classes to handle Carla pedestrians
 """
 
-from derived_object_msgs.msg import Object
-
 from carla_ros_bridge.traffic_participant import TrafficParticipant
 from carla_msgs.msg import CarlaWalkerControl
 from carla import WalkerControl
+from carla_msgs.msg import CarlaObjectKamazInfo
 
 
 class Walker(TrafficParticipant):
@@ -85,4 +84,21 @@ class Walker(TrafficParticipant):
         Function (override) to get classification
         :return:
         """
-        return Object.CLASSIFICATION_PEDESTRIAN
+        return CarlaObjectKamazInfo.CLASSIFICATION_PEDESTRIAN
+
+    def get_status(self):  # pylint: disable=no-self-use
+        return CarlaObjectKamazInfo.STATUS_UNKNOWN
+
+    def get_marker_color(self):  # pylint: disable=no-self-use
+        """
+        Function (override) to return the color for marker messages.
+
+        :return: default color used by traffic participants
+        :rtpye : std_msgs.msg.ColorRGBA
+        """
+        color = ColorRGBA()
+        color.r = 0.
+        color.g = 255.
+        color.b = 255.
+        return color
+
