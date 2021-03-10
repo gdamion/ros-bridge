@@ -14,6 +14,7 @@ from carla_ros_bridge.traffic_participant import TrafficParticipant
 from carla_msgs.msg import CarlaWalkerControl
 from carla import WalkerControl
 from carla_msgs.msg import CarlaObjectKamazInfo
+from std_msgs.msg import ColorRGBA
 
 
 class Walker(TrafficParticipant):
