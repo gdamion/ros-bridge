@@ -6,6 +6,8 @@
   <maintainer email="carla.simulator@gmail.com">CARLA Simulator Team</maintainer>
   <license>MIT</license>
 
+  <depend>kamaz_msgs</depend>
+
   <exec_depend>std_msgs</exec_depend>
   <exec_depend>geometry_msgs</exec_depend>
   <exec_depend>derived_object_msgs</exec_depend>
@@ -17,6 +19,7 @@
   <exec_depend>visualization_msgs</exec_depend>
   <exec_depend>carla_common</exec_depend>
   <exec_depend>carla_msgs</exec_depend>
+  <!-- <exec_depend>kamaz_msgs</exec_depend> -->
   <exec_depend>carla_spawn_objects</exec_depend>
   <exec_depend>carla_manual_control</exec_depend>
   <exec_depend>cv_bridge</exec_depend>

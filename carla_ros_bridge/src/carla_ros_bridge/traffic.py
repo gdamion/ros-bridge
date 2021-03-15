@@ -13,7 +13,8 @@ Classes to handle Carla traffic objects
 from carla_ros_bridge.actor import Actor
 import carla_common.transforms as trans
 from std_msgs.msg import ColorRGBA
-from carla_msgs.msg import CarlaTrafficLightStatus, CarlaTrafficLightInfo, CarlaObjectKamazInfo
+from carla_msgs.msg import CarlaTrafficLightStatus, CarlaTrafficLightInfo
+from kamaz_msgs.msg import CarlaObject
 from carla import TrafficLightState
 from shape_msgs.msg import SolidPrimitive
 
@@ -63,21 +64,21 @@ class Traffic(Actor):
         """
         Function to get object classification (overridden in subclasses)
         """
-        return CarlaObjectKamazInfo.CLASSIFICATION_SIGN
+        return CarlaObject.CLASSIFICATION_SIGN
 
     def get_status(self):
         type = self.carla_actor.type_id
         status = type.rpartition('.')[-1]
         if status == "90":
-            return CarlaObjectKamazInfo.STATUS_LIMIT90
+            return CarlaObject.STATUS_LIMIT90
         elif status == "60":
-            return CarlaObjectKamazInfo.STATUS_LIMIT60
+            return CarlaObject.STATUS_LIMIT60
         elif status == "40":
-            return CarlaObjectKamazInfo.STATUS_LIMIT40
+            return CarlaObject.STATUS_LIMIT40
         elif status == "stop":
-            return CarlaObjectKamazInfo.STATUS_STOP
+            return CarlaObject.STATUS_STOP
         else:
-            return CarlaObjectKamazInfo.STATUS_UNKNOWN
+            return CarlaObject.STATUS_UNKNOWN
 
 class TrafficLight(Actor):
 
@@ -136,7 +137,7 @@ class TrafficLight(Actor):
         """
         Function to get object classification (overridden in subclasses)
         """
-        return CarlaObjectKamazInfo.CLASSIFICATION_LIGHT
+        return CarlaObject.CLASSIFICATION_LIGHT
 
     def get_status(self):
         """
@@ -163,7 +164,7 @@ class TrafficLight(Actor):
         A derived_object_msgs.msg.Object is prepared to be published via '/carla/objects'
         :return:
         """
-        obj = CarlaObjectKamazInfo(header=self.get_msg_header("map"))
+        obj = CarlaObject(header=self.get_msg_header("map"))
         obj.id = self.get_id()
 
         try:
@@ -182,14 +183,14 @@ class TrafficLight(Actor):
 
         status = self.get_status()
         if status.state == CarlaTrafficLightStatus.RED:
-            obj.status = CarlaObjectKamazInfo.STATUS_RED_LIGHT
+            obj.status = CarlaObject.STATUS_RED_LIGHT
         elif status.state == CarlaTrafficLightStatus.YELLOW:
-            obj.status = CarlaObjectKamazInfo.STATUS_YELLOW_LIGHT
+            obj.status = CarlaObject.STATUS_YELLOW_LIGHT
         elif status.state == CarlaTrafficLightStatus.GREEN:
-            obj.status = CarlaObjectKamazInfo.STATUS_GREEN_LIGHT
+            obj.status = CarlaObject.STATUS_GREEN_LIGHT
         elif status.state == CarlaTrafficLightStatus.OFF:
-            obj.status = CarlaObjectKamazInfo.STATUS_LIGHT_OFF
+            obj.status = CarlaObject.STATUS_LIGHT_OFF
         else:
-            obj.status = CarlaObjectKamazInfo.STATUS_UNKNOWN
+            obj.status = CarlaObject.STATUS_UNKNOWN
 
         return obj

@@ -7,7 +7,7 @@ set(ROS_VERSION $ENV{ROS_VERSION})
 if(${ROS_VERSION} EQUAL 1)
 
   find_package(catkin REQUIRED COMPONENTS rospy sensor_msgs geometry_msgs
-                                          derived_object_msgs tf roslaunch)
+                                          derived_object_msgs tf roslaunch kamaz_msgs)
 
   catkin_python_setup()
 

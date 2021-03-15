@@ -15,7 +15,7 @@ from std_msgs.msg import ColorRGBA
 from visualization_msgs.msg import Marker
 from carla_ros_bridge.actor import Actor
 import carla_common.transforms as trans
-from carla_msgs.msg import CarlaObjectKamazInfo
+from kamaz_msgs.msg import CarlaObject
 from shape_msgs.msg import SolidPrimitive
 
 class TrafficParticipant(Actor):
@@ -63,10 +63,10 @@ class TrafficParticipant(Actor):
     def get_object_info(self):
         """
         Function to send object messages of this traffic participant.
-        A CarlaObjectKamazInfo is prepared to be published via '/carla/objects'
+        A CarlaObject is prepared to be published via '/carla/objects'
         :return:
         """
-        obj = CarlaObjectKamazInfo(header=self.get_msg_header("map"))
+        obj = CarlaObject(header=self.get_msg_header("map"))
         obj.id = self.get_id()
 
         try:

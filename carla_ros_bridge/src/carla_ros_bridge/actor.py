@@ -13,7 +13,8 @@ Base Classes to handle Actor objects
 from geometry_msgs.msg import TransformStamped  # pylint: disable=import-error
 from carla_ros_bridge.pseudo_actor import PseudoActor
 import carla_common.transforms as trans
-from carla_msgs.msg import CarlaObjectKamazInfo
+
+from kamaz_msgs.msg import CarlaObject
 
 from std_msgs.msg import ColorRGBA
 from visualization_msgs.msg import Marker
@@ -163,13 +164,13 @@ class Actor(PseudoActor):
         """
         Function to get object classification (overridden in subclasses)
         """
-        return CarlaObjectKamazInfo.CLASSIFICATION_UNKNOWN
+        return CarlaObject.CLASSIFICATION_UNKNOWN
 
     def get_status(self):  # pylint: disable=no-self-use
         """
         Function to get object classification (overridden in subclasses)
         """
-        return CarlaObjectKamazInfo.STATUS_UNKNOWN
+        return CarlaObject.STATUS_UNKNOWN
 
     def get_object_info(self):
         """
@@ -177,7 +178,7 @@ class Actor(PseudoActor):
         A derived_object_msgs.msg.Object is prepared to be published via '/carla/objects'
         :return:
         """
-        obj = CarlaObjectKamazInfo(header=self.get_msg_header("map"))
+        obj = CarlaObject(header=self.get_msg_header("map"))
         obj.id = self.get_id()
 
         try:

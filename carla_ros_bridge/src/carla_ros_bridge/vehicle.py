@@ -14,8 +14,7 @@ from std_msgs.msg import ColorRGBA
 
 import carla_common.transforms as trans
 from carla_ros_bridge.traffic_participant import TrafficParticipant
-from carla_msgs.msg import CarlaObjectKamazInfo
-
+from kamaz_msgs.msg import CarlaObject
 
 class Vehicle(TrafficParticipant):
 
@@ -30,18 +29,18 @@ class Vehicle(TrafficParticipant):
         :param carla_actor: carla vehicle actor object
         :type carla_actor: carla.Vehicle
         """
-        self.classification = CarlaObjectKamazInfo.CLASSIFICATION_UNKNOWN
+        self.classification = CarlaObject.CLASSIFICATION_UNKNOWN
         if 'object_type' in carla_actor.attributes:
             if carla_actor.attributes['object_type'] == 'car':
-                self.classification = CarlaObjectKamazInfo.CLASSIFICATION_CAR
+                self.classification = CarlaObject.CLASSIFICATION_CAR
             elif carla_actor.attributes['object_type'] == 'bike':
-                self.classification = CarlaObjectKamazInfo.CLASSIFICATION_BIKE
+                self.classification = CarlaObject.CLASSIFICATION_BIKE
             elif carla_actor.attributes['object_type'] == 'motorcycle':
-                self.classification = CarlaObjectKamazInfo.CLASSIFICATION_MOTORCYCLE
+                self.classification = CarlaObject.CLASSIFICATION_MOTORCYCLE
             elif carla_actor.attributes['object_type'] == 'truck':
-                self.classification = CarlaObjectKamazInfo.CLASSIFICATION_TRUCK
+                self.classification = CarlaObject.CLASSIFICATION_TRUCK
             elif carla_actor.attributes['object_type'] == 'other':
-                self.classification = CarlaObjectKamazInfo.CLASSIFICATION_OTHER_VEHICLE
+                self.classification = CarlaObject.CLASSIFICATION_OTHER_VEHICLE
 
         super(Vehicle, self).__init__(uid=uid,
                                       name=name,
@@ -83,4 +82,4 @@ class Vehicle(TrafficParticipant):
         return self.classification
 
     def get_status(self):  # pylint: disable=no-self-use
-        return CarlaObjectKamazInfo.STATUS_UNKNOWN
+        return CarlaObject.STATUS_UNKNOWN
