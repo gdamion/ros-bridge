@@ -10,11 +10,12 @@
 Classes to handle Carla vehicles
 """
 
-from std_msgs.msg import ColorRGBA
-
 import carla_common.transforms as trans
 from carla_ros_bridge.traffic_participant import TrafficParticipant
-from kamaz_msgs.msg import CarlaObject
+
+from std_msgs.msg import ColorRGBA
+from geometry_msgs.msg import PoseWithCovariance, TwistWithCovariance, AccelWithCovariance
+from autoware_auto_msgs.msg import TrackedDynamicObject, TrackedDynamicObjectArray, ObjectTrackedState
 
 class Vehicle(TrafficParticipant):
 
@@ -29,18 +30,18 @@ class Vehicle(TrafficParticipant):
         :param carla_actor: carla vehicle actor object
         :type carla_actor: carla.Vehicle
         """
-        self.classification = CarlaObject.CLASSIFICATION_UNKNOWN
-        if 'object_type' in carla_actor.attributes:
-            if carla_actor.attributes['object_type'] == 'car':
-                self.classification = CarlaObject.CLASSIFICATION_CAR
-            elif carla_actor.attributes['object_type'] == 'bike':
-                self.classification = CarlaObject.CLASSIFICATION_BIKE
-            elif carla_actor.attributes['object_type'] == 'motorcycle':
-                self.classification = CarlaObject.CLASSIFICATION_MOTORCYCLE
-            elif carla_actor.attributes['object_type'] == 'truck':
-                self.classification = CarlaObject.CLASSIFICATION_TRUCK
-            elif carla_actor.attributes['object_type'] == 'other':
-                self.classification = CarlaObject.CLASSIFICATION_OTHER_VEHICLE
+        # self.classification = TrackedDynamicObject.CLASSIFICATION_UNKNOWN
+        # if 'object_type' in carla_actor.attributes:
+        #     if carla_actor.attributes['object_type'] == 'car':
+        #         self.classification = TrackedDynamicObject.CLASSIFICATION_CAR
+        #     elif carla_actor.attributes['object_type'] == 'bike':
+        #         self.classification = TrackedDynamicObject.CLASSIFICATION_BIKE
+        #     elif carla_actor.attributes['object_type'] == 'motorcycle':
+        #         self.classification = TrackedDynamicObject.CLASSIFICATION_MOTORCYCLE
+        #     elif carla_actor.attributes['object_type'] == 'truck':
+        #         self.classification = TrackedDynamicObject.CLASSIFICATION_TRUCK
+        #     elif carla_actor.attributes['object_type'] == 'other':
+        #         self.classification = TrackedDynamicObject.CLASSIFICATION_OTHER_VEHICLE
 
         super(Vehicle, self).__init__(uid=uid,
                                       name=name,
@@ -74,12 +75,12 @@ class Vehicle(TrafficParticipant):
         marker_transform.location -= marker_transform.get_up_vector() * extent.z
         return trans.carla_transform_to_ros_pose(marker_transform)
 
-    def get_classification(self):
-        """
-        Function (override) to get classification
-        :return:
-        """
-        return self.classification
+    # def get_classification(self):
+    #     """
+    #     Function (override) to get classification
+    #     :return:
+    #     """
+    #     return self.classification
 
-    def get_status(self):  # pylint: disable=no-self-use
-        return CarlaObject.STATUS_UNKNOWN
+    # def get_status(self):  # pylint: disable=no-self-use
+    #     return TrackedDynamicObject.STATUS_UNKNOWN

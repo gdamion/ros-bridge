@@ -84,7 +84,7 @@ class TrafficLightsSensor(PseudoActor):
             actor = self.actor_list[actor_id]
             if isinstance(actor, TrafficLight):
                 traffic_light_actors.append(actor)
-                traffic_light_status.traffic_lights.append(actor.get_status())
+                # traffic_light_status.traffic_lights.append(actor.get_status())
 
         if traffic_light_actors != self.traffic_light_actors:
             self.traffic_light_actors = traffic_light_actors

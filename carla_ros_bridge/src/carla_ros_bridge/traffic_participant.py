@@ -10,13 +10,14 @@
 Classes to handle Carla traffic participants
 """
 
-from shape_msgs.msg import SolidPrimitive
 from std_msgs.msg import ColorRGBA
-from visualization_msgs.msg import Marker
 from carla_ros_bridge.actor import Actor
 import carla_common.transforms as trans
-from kamaz_msgs.msg import CarlaObject
+
 from shape_msgs.msg import SolidPrimitive
+from visualization_msgs.msg import Marker
+from geometry_msgs.msg import PoseWithCovariance, TwistWithCovariance, AccelWithCovariance
+from autoware_auto_msgs.msg import TrackedDynamicObject, TrackedDynamicObjectArray, ObjectTrackedState
 
 class TrafficParticipant(Actor):
 
@@ -63,26 +64,44 @@ class TrafficParticipant(Actor):
     def get_object_info(self):
         """
         Function to send object messages of this traffic participant.
-        A CarlaObject is prepared to be published via '/carla/objects'
+        A derived_object_msgs.msg.Object is prepared to be published via '/carla/objects'
         :return:
         """
-        obj = CarlaObject(header=self.get_msg_header("map"))
+        obj = TrackedDynamicObject(header=self.get_msg_header("map"))
         obj.id = self.get_id()
-
         try:
-            obj.rolename = str(self.carla_actor.attributes.get('role_name'))
+            obj.role_name = str(self.carla_actor.attributes.get('role_name'))
         except ValueError:
             pass
 
-        obj.type = self.carla_actor.type_id
-        obj.pose = self.get_current_ros_pose()
-        obj.vel = self.get_current_ros_twist()
-        obj.acc = self.get_current_ros_accel()
+        # Classification
+            #todo
+        # Tracked State
+        tracked_state = ObjectTrackedState()
+
+            # Pose
+        pose = PoseWithCovariance()
+        pose.pose = self.get_current_ros_pose()
+        tracked_state.pose = pose
+
+            # Twist
+        twist = TwistWithCovariance()
+        twist.twist = self.get_current_ros_twist()
+        tracked_state.twist = twist
+
+            # Acceleration
+        accel = AccelWithCovariance()
+        accel.accel = self.get_current_ros_accel()
+        tracked_state.acceleration = accel
+
+        obj.tracked_state = tracked_state
+
+        # Shape
         obj.shape.type = SolidPrimitive.BOX
         obj.shape.dimensions.extend([
             self.carla_actor.bounding_box.extent.x * 2.0,
             self.carla_actor.bounding_box.extent.y * 2.0,
             self.carla_actor.bounding_box.extent.z * 2.0])
-        obj.classification = self.get_classification()
-        obj.status = self.get_status()
+        # obj.classification = self.get_classification()
+        # obj.status = self.get_status()
         return obj

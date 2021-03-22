@@ -12,12 +12,12 @@ Classes to handle Carla traffic objects
 
 from carla_ros_bridge.actor import Actor
 import carla_common.transforms as trans
+from carla import TrafficLightState
+
+from shape_msgs.msg import SolidPrimitive
 from std_msgs.msg import ColorRGBA
 from carla_msgs.msg import CarlaTrafficLightStatus, CarlaTrafficLightInfo
-from kamaz_msgs.msg import CarlaObject
-from carla import TrafficLightState
-from shape_msgs.msg import SolidPrimitive
-
+from autoware_auto_msgs.msg import TrackedDynamicObject, TrackedDynamicObjectArray
 
 class Traffic(Actor):
 
@@ -60,25 +60,25 @@ class Traffic(Actor):
         color.b = 0.
         return color
 
-    def get_classification(self):  # pylint: disable=no-self-use
-        """
-        Function to get object classification (overridden in subclasses)
-        """
-        return CarlaObject.CLASSIFICATION_SIGN
+    # def get_classification(self):  # pylint: disable=no-self-use
+    #     """
+    #     Function to get object classification (overridden in subclasses)
+    #     """
+    #     return TrackedDynamicObject.CLASSIFICATION_SIGN
 
-    def get_status(self):
-        type = self.carla_actor.type_id
-        status = type.rpartition('.')[-1]
-        if status == "90":
-            return CarlaObject.STATUS_LIMIT90
-        elif status == "60":
-            return CarlaObject.STATUS_LIMIT60
-        elif status == "40":
-            return CarlaObject.STATUS_LIMIT40
-        elif status == "stop":
-            return CarlaObject.STATUS_STOP
-        else:
-            return CarlaObject.STATUS_UNKNOWN
+    # def get_status(self):
+    #     type = self.carla_actor.type_id
+    #     status = type.rpartition('.')[-1]
+    #     if status == "90":
+    #         return TrackedDynamicObject.STATUS_LIMIT90
+    #     elif status == "60":
+    #         return TrackedDynamicObject.STATUS_LIMIT60
+    #     elif status == "40":
+    #         return TrackedDynamicObject.STATUS_LIMIT40
+    #     elif status == "stop":
+    #         return TrackedDynamicObject.STATUS_STOP
+    #     else:
+    #         return TrackedDynamicObject.STATUS_UNKNOWN
 
 class TrafficLight(Actor):
 
@@ -133,64 +133,64 @@ class TrafficLight(Actor):
         color.b = 0.
         return color
 
-    def get_classification(self):  # pylint: disable=no-self-use
-        """
-        Function to get object classification (overridden in subclasses)
-        """
-        return CarlaObject.CLASSIFICATION_LIGHT
+    # def get_classification(self):  # pylint: disable=no-self-use
+    #     """
+    #     Function to get object classification (overridden in subclasses)
+    #     """
+    #     return TrackedDynamicObject.CLASSIFICATION_LIGHT
 
-    def get_status(self):
-        """
-        Get the current state of the traffic light
-        """
-        status = CarlaTrafficLightStatus()
-        status.id = self.get_id()
-        carla_state = self.carla_actor.get_state()
-        if carla_state == TrafficLightState.Red:
-            status.state = CarlaTrafficLightStatus.RED
-        elif carla_state == TrafficLightState.Yellow:
-            status.state = CarlaTrafficLightStatus.YELLOW
-        elif carla_state == TrafficLightState.Green:
-            status.state = CarlaTrafficLightStatus.GREEN
-        elif carla_state == TrafficLightState.Off:
-            status.state = CarlaTrafficLightStatus.OFF
-        else:
-            status.state = CarlaTrafficLightStatus.UNKNOWN
-        return status
+    # def get_status(self):
+    #     """
+    #     Get the current state of the traffic light
+    #     """
+    #     status = CarlaTrafficLightStatus()
+    #     status.id = self.get_id()
+    #     carla_state = self.carla_actor.get_state()
+    #     if carla_state == TrafficLightState.Red:
+    #         status.state = CarlaTrafficLightStatus.RED
+    #     elif carla_state == TrafficLightState.Yellow:
+    #         status.state = CarlaTrafficLightStatus.YELLOW
+    #     elif carla_state == TrafficLightState.Green:
+    #         status.state = CarlaTrafficLightStatus.GREEN
+    #     elif carla_state == TrafficLightState.Off:
+    #         status.state = CarlaTrafficLightStatus.OFF
+    #     else:
+    #         status.state = CarlaTrafficLightStatus.UNKNOWN
+    #     return status
 
-    def get_object_info(self):
-        """
-        Function to send object messages of this traffic participant.
-        A derived_object_msgs.msg.Object is prepared to be published via '/carla/objects'
-        :return:
-        """
-        obj = CarlaObject(header=self.get_msg_header("map"))
-        obj.id = self.get_id()
+    # def get_object_info(self):
+    #     """
+    #     Function to send object messages of this traffic participant.
+    #     A derived_object_msgs.msg.Object is prepared to be published via '/carla/objects'
+    #     :return:
+    #     """
+    #     obj = TrackedDynamicObject(header=self.get_msg_header("map"))
+    #     obj.id = self.get_id()
 
-        try:
-            obj.rolename = str(self.carla_actor.attributes.get('role_name'))
-        except ValueError:
-            pass
+    #     try:
+    #         obj.rolename = str(self.carla_actor.attributes.get('role_name'))
+    #     except ValueError:
+    #         pass
 
-        obj.type = self.carla_actor.type_id
-        obj.pose = self.get_current_ros_pose()
-        obj.shape.type = SolidPrimitive.BOX
-        obj.shape.dimensions.extend([
-            self.carla_actor.bounding_box.extent.x * 2.0,
-            self.carla_actor.bounding_box.extent.y * 2.0,
-            self.carla_actor.bounding_box.extent.z * 2.0])
-        obj.classification = self.get_classification()
+    #     obj.type = self.carla_actor.type_id
+    #     obj.pose = self.get_current_ros_pose()
+    #     obj.shape.type = SolidPrimitive.BOX
+    #     obj.shape.dimensions.extend([
+    #         self.carla_actor.bounding_box.extent.x * 2.0,
+    #         self.carla_actor.bounding_box.extent.y * 2.0,
+    #         self.carla_actor.bounding_box.extent.z * 2.0])
+    #     obj.classification = self.get_classification()
 
-        status = self.get_status()
-        if status.state == CarlaTrafficLightStatus.RED:
-            obj.status = CarlaObject.STATUS_RED_LIGHT
-        elif status.state == CarlaTrafficLightStatus.YELLOW:
-            obj.status = CarlaObject.STATUS_YELLOW_LIGHT
-        elif status.state == CarlaTrafficLightStatus.GREEN:
-            obj.status = CarlaObject.STATUS_GREEN_LIGHT
-        elif status.state == CarlaTrafficLightStatus.OFF:
-            obj.status = CarlaObject.STATUS_LIGHT_OFF
-        else:
-            obj.status = CarlaObject.STATUS_UNKNOWN
+    #     status = self.get_status()
+    #     if status.state == CarlaTrafficLightStatus.RED:
+    #         obj.status = TrackedDynamicObject.STATUS_RED_LIGHT
+    #     elif status.state == CarlaTrafficLightStatus.YELLOW:
+    #         obj.status = TrackedDynamicObject.STATUS_YELLOW_LIGHT
+    #     elif status.state == CarlaTrafficLightStatus.GREEN:
+    #         obj.status = TrackedDynamicObject.STATUS_GREEN_LIGHT
+    #     elif status.state == CarlaTrafficLightStatus.OFF:
+    #         obj.status = TrackedDynamicObject.STATUS_LIGHT_OFF
+    #     else:
+    #         obj.status = TrackedDynamicObject.STATUS_UNKNOWN
 
-        return obj
+    #     return obj

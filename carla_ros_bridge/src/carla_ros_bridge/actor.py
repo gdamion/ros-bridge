@@ -10,16 +10,15 @@
 Base Classes to handle Actor objects
 """
 
-from geometry_msgs.msg import TransformStamped  # pylint: disable=import-error
 from carla_ros_bridge.pseudo_actor import PseudoActor
 import carla_common.transforms as trans
 
-from kamaz_msgs.msg import CarlaObject
-
 from std_msgs.msg import ColorRGBA
+from geometry_msgs.msg import TransformStamped # pylint: disable=import-error
+from geometry_msgs.msg import PoseWithCovariance, TwistWithCovariance, AccelWithCovariance
 from visualization_msgs.msg import Marker
-import carla_common.transforms as trans
 from shape_msgs.msg import SolidPrimitive
+from autoware_auto_msgs.msg import TrackedDynamicObject, TrackedDynamicObjectArray, ObjectTrackedState
 
 class Actor(PseudoActor):
 
@@ -160,17 +159,17 @@ class Actor(PseudoActor):
         marker.scale.z = self.carla_actor.bounding_box.extent.z * 2.0
         return marker
 
-    def get_classification(self):  # pylint: disable=no-self-use
-        """
-        Function to get object classification (overridden in subclasses)
-        """
-        return CarlaObject.CLASSIFICATION_UNKNOWN
+    # def get_classification(self):  # pylint: disable=no-self-use
+    #     """
+    #     Function to get object classification (overridden in subclasses)
+    #     """
+    #     return TrackedDynamicObject.CLASSIFICATION_UNKNOWN
 
-    def get_status(self):  # pylint: disable=no-self-use
-        """
-        Function to get object classification (overridden in subclasses)
-        """
-        return CarlaObject.STATUS_UNKNOWN
+    # def get_status(self):  # pylint: disable=no-self-use
+    #     """
+    #     Function to get object classification (overridden in subclasses)
+    #     """
+    #     return TrackedDynamicObject.STATUS_UNKNOWN
 
     def get_object_info(self):
         """
@@ -178,21 +177,34 @@ class Actor(PseudoActor):
         A derived_object_msgs.msg.Object is prepared to be published via '/carla/objects'
         :return:
         """
-        obj = CarlaObject(header=self.get_msg_header("map"))
+        obj = TrackedDynamicObject(header=self.get_msg_header("map"))
         obj.id = self.get_id()
-
         try:
-            obj.rolename = str(self.carla_actor.attributes.get('role_name'))
+            obj.role_name = str(self.carla_actor.attributes.get('role_name'))
         except ValueError:
             pass
 
-        obj.type = self.carla_actor.type_id
-        obj.pose = self.get_current_ros_pose()
+        # Classification
+            #todo
+        # Tracked State
+        tracked_state = ObjectTrackedState()
+
+            # Pose
+        pose = PoseWithCovariance()
+        pose.pose = self.get_current_ros_pose()
+        tracked_state.pose = pose
+            # Twist
+                # for Actor class twist = 0
+            # Acceleration
+                # for Actor class accel = 0
+        obj.tracked_state = tracked_state
+
+        # Shape
         obj.shape.type = SolidPrimitive.BOX
         obj.shape.dimensions.extend([
             self.carla_actor.bounding_box.extent.x * 2.0,
             self.carla_actor.bounding_box.extent.y * 2.0,
             self.carla_actor.bounding_box.extent.z * 2.0])
-        obj.classification = self.get_classification()
-        obj.status = self.get_status()
+        # obj.classification = self.get_classification()
+        # obj.status = self.get_status()
         return obj

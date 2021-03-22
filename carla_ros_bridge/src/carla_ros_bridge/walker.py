@@ -11,11 +11,12 @@ Classes to handle Carla pedestrians
 """
 
 from carla_ros_bridge.traffic_participant import TrafficParticipant
-from carla_msgs.msg import CarlaWalkerControl
 from carla import WalkerControl
-from kamaz_msgs.msg import CarlaObject
-from std_msgs.msg import ColorRGBA
 
+from carla_msgs.msg import CarlaWalkerControl
+from geometry_msgs.msg import PoseWithCovariance, TwistWithCovariance, AccelWithCovariance
+from std_msgs.msg import ColorRGBA
+from autoware_auto_msgs.msg import TrackedDynamicObject, TrackedDynamicObjectArray, ObjectTrackedState
 
 class Walker(TrafficParticipant):
 
@@ -80,15 +81,15 @@ class Walker(TrafficParticipant):
         walker_control.jump = ros_walker_control.jump
         self.carla_actor.apply_control(walker_control)
 
-    def get_classification(self):
-        """
-        Function (override) to get classification
-        :return:
-        """
-        return CarlaObject.CLASSIFICATION_PEDESTRIAN
+    # def get_classification(self):
+    #     """
+    #     Function (override) to get classification
+    #     :return:
+    #     """
+    #     return TrackedDynamicObject.CLASSIFICATION_PEDESTRIAN
 
-    def get_status(self):  # pylint: disable=no-self-use
-        return CarlaObject.STATUS_UNKNOWN
+    # def get_status(self):  # pylint: disable=no-self-use
+    #     return TrackedDynamicObject.STATUS_UNKNOWN
 
     def get_marker_color(self):  # pylint: disable=no-self-use
         """

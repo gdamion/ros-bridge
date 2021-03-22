@@ -9,14 +9,14 @@
 handle a object sensor
 """
 
-# from derived_object_msgs.msg import ObjectArray
-from kamaz_msgs.msg import CarlaObjectArray
 from carla_ros_bridge.vehicle import Vehicle
 from carla_ros_bridge.walker import Walker
 from carla_ros_bridge.traffic import Traffic
 from carla_ros_bridge.traffic import TrafficLight
 from carla_ros_bridge.pseudo_actor import PseudoActor
 
+from geometry_msgs.msg import PoseWithCovariance, TwistWithCovariance, AccelWithCovariance
+from autoware_auto_msgs.msg import TrackedDynamicObject, TrackedDynamicObjectArray, ObjectTrackedState
 
 class ObjectSensor(PseudoActor):
 
@@ -44,7 +44,7 @@ class ObjectSensor(PseudoActor):
                                            parent=parent,
                                            node=node)
         self.actor_list = actor_list
-        self.object_publisher = node.new_publisher(CarlaObjectArray,
+        self.object_publisher = node.new_publisher(TrackedDynamicObjectArray,
                                                    self.get_topic_prefix())
 
     def destroy(self):
@@ -72,7 +72,7 @@ class ObjectSensor(PseudoActor):
         :return:
         """
         # ros_objects = ObjectArray(header=self.get_msg_header("map"))
-        kamaz_objects = CarlaObjectArray()
+        kamaz_objects = TrackedDynamicObjectArray()
         for actor_id in self.actor_list.keys():
             if self.parent is None or self.parent.uid != actor_id:
                 actor = self.actor_list[actor_id]
@@ -80,9 +80,9 @@ class ObjectSensor(PseudoActor):
                     kamaz_objects.objects.append(actor.get_object_info())
                 elif isinstance(actor, Walker):
                     kamaz_objects.objects.append(actor.get_object_info())
-                elif isinstance(actor, Traffic):
-                    kamaz_objects.objects.append(actor.get_object_info())
-                elif isinstance(actor, TrafficLight):
-                    kamaz_objects.objects.append(actor.get_object_info())
-
+                # elif isinstance(actor, Traffic):
+                #     kamaz_objects.objects.append(actor.get_object_info())
+                # elif isinstance(actor, TrafficLight):
+                #     kamaz_objects.objects.append(actor.get_object_info())
+        kamaz_objects.header = self.get_msg_header(frame_id="map")
         self.object_publisher.publish(kamaz_objects)
