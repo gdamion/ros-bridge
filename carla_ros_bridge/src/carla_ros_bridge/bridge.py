@@ -180,9 +180,31 @@ class CarlaRosBridge(CompatibleNode):
         self.get_blueprints_service = self.new_service(GetBlueprints, "/carla/get_blueprints",
                                                        self.get_blueprints, callback_group=self.callback_group)
 
-        self.carla_weather_subscriber = \
-            self.create_subscriber(CarlaWeatherParameters, "/carla/weather_control",
+        self.carla_weather_subscriber = self.create_subscriber(CarlaWeatherParameters, "/carla/weather_control",
                                    self.on_weather_changed, callback_group=self.callback_group)
+
+        # Default run of objects publisher #
+        # object_sensor_req = SpawnObject.Request()
+        # object_sensor_req.type = "sensor.pseudo.objects"
+        # object_sensor_req.id = "objects"
+        # self.spawn_object(object_sensor_req)
+
+        # actor_list_sensor_req = SpawnObject.Request()
+        # actor_list_sensor_req.type = "sensor.pseudo.actor_list"
+        # actor_list_sensor_req.id = "actor_list"
+        # self.spawn_object(actor_list_sensor_req)
+
+        # marker_sensor_req = SpawnObject.Request()
+        # marker_sensor_req.type = "sensor.pseudo.markers"
+        # marker_sensor_req.id = "markers"
+        # self.spawn_object(marker_sensor_req)
+
+        # traffic_light_sensor_req = SpawnObject.Request()
+        # traffic_light_sensor_req.type = "sensor.pseudo.traffic_lights"
+        # traffic_light_sensor_req.id = "traffic_lights"
+        # self.spawn_object(traffic_light_sensor_req)
+        ##########################################
+
 
     def spawn_object(self, req, response=None):
         response = get_service_response(SpawnObject)
