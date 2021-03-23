@@ -12,7 +12,9 @@ target destination. This agent respects traffic lights and other vehicles.
 
 from carla_waypoint_types.srv import GetActorWaypoint  # pylint: disable=import-error
 from carla_msgs.msg import CarlaActorList  # pylint: disable=import-error
-from derived_object_msgs.msg import ObjectArray  # pylint: disable=import-error
+from autoware_auto_msgs.msg import TrackedDynamicObject, TrackedDynamicObjectArray
+
+
 import math
 from ros_compatibility import (
     ros_ok,
@@ -55,8 +57,8 @@ class BasicAgent(Agent):
             self._objects = []
             self._actors_subscriber = self.node.create_subscriber(CarlaActorList, "/carla/actor_list",
                                                                   self.actors_updated, callback_group=cb_group)
-            self._objects_subscriber = self.node.create_subscriber(ObjectArray,
-                                                                   "/carla/{}/objects".format(role_name), self.objects_updated)
+            self._objects_subscriber = self.node.create_subscriber(TrackedDynamicObjectArray,
+                                                                   "/carla/objects", self.objects_updated)
             self._get_actor_waypoint_client = self.node.create_service_client(
                 '/carla_waypoint_publisher/{}/get_actor_waypoint'.format(role_name),
                 GetActorWaypoint, callback_group=cb_group)
@@ -109,7 +111,10 @@ class BasicAgent(Agent):
         hazard_detected = False
 
         if self._avoid_risk:
+            pass
+
             # check possible obstacles
+# TODO redo for mre
             vehicle_state, vehicle = self._is_vehicle_hazard(  # pylint: disable=unused-variable
                 self._vehicle_id_list, self._objects)
             if vehicle_state:
@@ -117,11 +122,12 @@ class BasicAgent(Agent):
                 hazard_detected = True
 
             # check for the state of the traffic lights
-            light_state, traffic_light = self._is_light_red(  # pylint: disable=unused-variable
-                self._lights_id_list)
-            if light_state:
-                self._state = AgentState.BLOCKED_RED_LIGHT
-                hazard_detected = True
+
+            # light_state, traffic_light = self._is_light_red(  # pylint: disable=unused-variable
+            #     self._lights_id_list)
+            # if light_state:
+            #     self._state = AgentState.BLOCKED_RED_LIGHT
+            #     hazard_detected = True
 
         if hazard_detected is False:
             self._state = AgentState.NAVIGATING

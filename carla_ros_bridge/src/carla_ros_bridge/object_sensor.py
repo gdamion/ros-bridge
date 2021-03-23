@@ -71,7 +71,6 @@ class ObjectSensor(PseudoActor):
         - tf global frame
         :return:
         """
-        # ros_objects = ObjectArray(header=self.get_msg_header("map"))
         kamaz_objects = TrackedDynamicObjectArray()
         for actor_id in self.actor_list.keys():
             if self.parent is None or self.parent.uid != actor_id:

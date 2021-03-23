@@ -13,6 +13,7 @@ from carla_waypoint_types.srv import GetWaypoint  # pylint: disable=import-error
 from carla_msgs.msg import CarlaTrafficLightStatusList, CarlaWorldInfo  # pylint: disable=import-error
 from carla_msgs.msg import CarlaEgoVehicleControl, CarlaTrafficLightStatus  # pylint: disable=import-error
 from nav_msgs.msg import Odometry
+from autoware_auto_msgs.msg import TrackedDynamicObject, TrackedDynamicObjectArray
 from visualization_msgs.msg import Marker
 from enum import Enum
 import math
@@ -289,7 +290,7 @@ class Agent(object):
             target_vehicle_location = None
             for elem in objects:
                 if elem.id == target_vehicle_id:
-                    target_vehicle_location = elem.pose
+                    target_vehicle_location = elem.tracked_state.pose.pose
                     break
 
             if not target_vehicle_location:
