@@ -111,23 +111,21 @@ class BasicAgent(Agent):
         hazard_detected = False
 
         if self._avoid_risk:
-            pass
-
+            # TODO redo for on/off as parameter
             # check possible obstacles
-# TODO redo for mre
             vehicle_state, vehicle = self._is_vehicle_hazard(  # pylint: disable=unused-variable
                 self._vehicle_id_list, self._objects)
             if vehicle_state:
                 self._state = AgentState.BLOCKED_BY_VEHICLE
                 hazard_detected = True
 
+            # TODO redo for on/off as parameter
             # check for the state of the traffic lights
-
-            # light_state, traffic_light = self._is_light_red(  # pylint: disable=unused-variable
-            #     self._lights_id_list)
-            # if light_state:
-            #     self._state = AgentState.BLOCKED_RED_LIGHT
-            #     hazard_detected = True
+            light_state, traffic_light = self._is_light_red(  # pylint: disable=unused-variable
+                self._lights_id_list)
+            if light_state:
+                self._state = AgentState.BLOCKED_RED_LIGHT
+                hazard_detected = True
 
         if hazard_detected is False:
             self._state = AgentState.NAVIGATING

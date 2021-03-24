@@ -129,19 +129,38 @@ class TrafficLight(Actor):
         """
         color = ColorRGBA()
         color.r = 255.
-        color.g = 0.
+        color.g = 0.    # def get_classification(self):  # pylint: disable=no-self-use
         color.b = 0.
         return color
+
+    def get_carla_light_status(self):
+        """
+        Get the current state of the traffic light in carla manner standart
+        """
+        status = CarlaTrafficLightStatus()
+        status.id = self.get_id()
+        carla_state = self.carla_actor.get_state()
+        if carla_state == TrafficLightState.Red:
+            status.state = CarlaTrafficLightStatus.RED
+        elif carla_state == TrafficLightState.Yellow:
+            status.state = CarlaTrafficLightStatus.YELLOW
+        elif carla_state == TrafficLightState.Green:
+            status.state = CarlaTrafficLightStatus.GREEN
+        elif carla_state == TrafficLightState.Off:
+            status.state = CarlaTrafficLightStatus.OFF
+        else:
+            status.state = CarlaTrafficLightStatus.UNKNOWN
+        return status
 
     # def get_classification(self):  # pylint: disable=no-self-use
     #     """
     #     Function to get object classification (overridden in subclasses)
     #     """
-    #     return TrackedDynamicObject.CLASSIFICATION_LIGHT
+    #     return TrackedDynamicObject.classification
 
     # def get_status(self):
     #     """
-    #     Get the current state of the traffic light
+    #     Get the current state of the traffic light in custom kamaz manner
     #     """
     #     status = CarlaTrafficLightStatus()
     #     status.id = self.get_id()
