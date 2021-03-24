@@ -157,6 +157,12 @@ class Actor(PseudoActor):
         marker.scale.x = self.carla_actor.bounding_box.extent.x * 2.0
         marker.scale.y = self.carla_actor.bounding_box.extent.y * 2.0
         marker.scale.z = self.carla_actor.bounding_box.extent.z * 2.0
+        if marker.scale.x == 0:
+            marker.scale.x = 0.5;
+        if marker.scale.y == 0:
+            marker.scale.y = 0.5;
+        if marker.scale.y == 0:
+            marker.scale.y = 0.5;
         return marker
 
     # def get_classification(self):  # pylint: disable=no-self-use
