@@ -45,7 +45,10 @@ class CarlaAdAgent(CompatibleNode):
         super(CarlaAdAgent, self).__init__('carla_ad_agent')
 
         role_name = self.get_param("role_name", "ego_vehicle")
+
         avoid_risk = self.get_param("avoid_risk", True)
+        use_traffic_participants_info = self.get_param("use_traffic_participants_info", True)
+        use_traffic_ligts_info = self.get_param("use_traffic_ligts_info", True)
 
         self.target_speed = self.get_param("target_speed", 30.0)
         self.agent = None
@@ -57,7 +60,7 @@ class CarlaAdAgent(CompatibleNode):
             role_name), CarlaEgoVehicleInfo, qos_profile=QoSProfile(depth=1, durability=latch_on))
         self.loginfo("Vehicle info received.")
 
-        self.agent = BasicAgent(role_name, vehicle_info.id, self, avoid_risk)
+        self.agent = BasicAgent(role_name, vehicle_info.id, self, avoid_risk, use_traffic_participants_info, use_traffic_ligts_info)
 
         self.target_speed_subscriber = self.create_subscriber(
             Float64, "/carla/{}/target_speed".format(role_name), self.target_speed_updated, QoSProfile(depth=1, durability=True))

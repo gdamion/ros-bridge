@@ -68,6 +68,14 @@ def generate_launch_description():
             default_value='True'
         ),
         launch.actions.DeclareLaunchArgument(
+            name='use_traffic_participants_info',
+            default_value='False'
+        ),
+        launch.actions.DeclareLaunchArgument(
+            name='use_traffic_ligts_info',
+            default_value='False'
+        ),
+        launch.actions.DeclareLaunchArgument(
             name='sigterm_timeout',
             default_value='15'
         ),
@@ -95,7 +103,9 @@ def generate_launch_description():
             launch_arguments={
                 'target_speed': launch.substitutions.LaunchConfiguration('target_speed'),
                 'role_name': launch.substitutions.LaunchConfiguration('role_name'),
-                'avoid_risk': launch.substitutions.LaunchConfiguration('avoid_risk')
+                'avoid_risk': launch.substitutions.LaunchConfiguration('avoid_risk'),
+                'use_traffic_participants_info': launch.substitutions.LaunchConfiguration('use_traffic_participants_info'),
+                'use_traffic_ligts_info': launch.substitutions.LaunchConfiguration('use_traffic_ligts_info')
             }.items()
         ),
         launch.actions.IncludeLaunchDescription(

@@ -37,12 +37,14 @@ class BasicAgent(Agent):
     target destination. This agent respects traffic lights and other vehicles.
     """
 
-    def __init__(self, role_name, ego_vehicle_id, node, avoid_risk=True):
+    def __init__(self, role_name, ego_vehicle_id, node, avoid_risk=True, use_traffic_participants_info=True, use_traffic_ligts_info=True):
         """
         """
         super(BasicAgent, self).__init__(role_name, ego_vehicle_id, avoid_risk, node)
         self.node = node
         self._avoid_risk = avoid_risk
+        self._use_traffic_participants_info = use_traffic_participants_info
+        self._use_traffic_ligts_info = use_traffic_ligts_info
         self._proximity_threshold = 10.0  # meters
         self._state = AgentState.NAVIGATING
 
@@ -111,21 +113,19 @@ class BasicAgent(Agent):
         hazard_detected = False
 
         if self._avoid_risk:
-            # TODO redo for on/off as parameter
-            # check possible obstacles
-            vehicle_state, vehicle = self._is_vehicle_hazard(  # pylint: disable=unused-variable
-                self._vehicle_id_list, self._objects)
-            if vehicle_state:
-                self._state = AgentState.BLOCKED_BY_VEHICLE
-                hazard_detected = True
+            if self._use_traffic_participants_info: # check possible obstacles
+                vehicle_state, vehicle = self._is_vehicle_hazard(  # pylint: disable=unused-variable
+                    self._vehicle_id_list, self._objects)
+                if vehicle_state:
+                    self._state = AgentState.BLOCKED_BY_VEHICLE
+                    hazard_detected = True
 
-            # TODO redo for on/off as parameter
-            # check for the state of the traffic lights
-            light_state, traffic_light = self._is_light_red(  # pylint: disable=unused-variable
-                self._lights_id_list)
-            if light_state:
-                self._state = AgentState.BLOCKED_RED_LIGHT
-                hazard_detected = True
+            if self._use_traffic_ligts_info: # check for the state of the traffic lights
+                light_state, traffic_light = self._is_light_red(  # pylint: disable=unused-variable
+                    self._lights_id_list)
+                if light_state:
+                    self._state = AgentState.BLOCKED_RED_LIGHT
+                    hazard_detected = True
 
         if hazard_detected is False:
             self._state = AgentState.NAVIGATING
