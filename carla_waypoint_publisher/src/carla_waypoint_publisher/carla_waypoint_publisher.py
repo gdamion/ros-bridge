@@ -37,7 +37,7 @@ from geometry_msgs.msg import PoseStamped
 import carla_common.transforms as trans
 from carla_msgs.msg import CarlaWorldInfo
 from carla_waypoint_types.srv import GetWaypoint, GetActorWaypoint
-from std_srvs.srv import Empty
+from std_msgs.msg import Empty
 
 import carla
 
@@ -71,10 +71,6 @@ class CarlaToRosWaypointConverter(CompatibleNode):
             Path, '/carla/{}/waypoints'.format(self.role_name), QoSProfile(depth=1, durability=True))
 
         # initialize ros services
-        self.random_goal_service = self.new_service(
-            Empty,
-            '/carla_waypoint_publisher/{}/create_random_goal'.format(self.role_name),
-            self.create_random_goal)
         self.get_waypoint_service = self.new_service(
             GetWaypoint,
             '/carla_waypoint_publisher/{}/get_waypoint'.format(self.role_name),
@@ -90,7 +86,8 @@ class CarlaToRosWaypointConverter(CompatibleNode):
         self.current_route = None
         self.goal_subscriber = self.create_subscriber(
             PoseStamped, "/carla/{}/goal".format(self.role_name), self.on_goal)
-
+        self.random_goal_subscriber = self.create_subscriber(
+            Empty, "/carla/{}/create_random_goal".format(self.role_name), self.create_random_goal)
         # use callback to wait for ego vehicle
         self.loginfo("Waiting for ego vehicle...")
         self.on_tick = self.world.on_tick(self.find_ego_vehicle_actor)
@@ -103,13 +100,12 @@ class CarlaToRosWaypointConverter(CompatibleNode):
         if self.on_tick:
             self.world.remove_on_tick(self.on_tick)
 
-    def create_random_goal(self, req, response=None):
+    def create_random_goal(self, goal):
         self.loginfo("Received request for random goal, trigger rerouting...")
         goal_points = self.world.get_map().get_spawn_points()
         rand_point_num = random.randrange(0, len(goal_points))
         self.goal = goal_points[rand_point_num]
         self.reroute()
-        return get_service_response(Empty)
 
     def get_waypoint(self, req, response=None):
         """

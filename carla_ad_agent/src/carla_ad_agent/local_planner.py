@@ -19,6 +19,7 @@ from std_msgs.msg import Float64
 import time
 import math
 from visualization_msgs.msg import Marker
+from std_msgs.msg import Empty
 
 import os
 ROS_VERSION = int(os.environ['ROS_VERSION'])
@@ -51,6 +52,8 @@ class LocalPlanner(CompatibleNode):
 
         # ros parameters
         role_name = self.get_param("role_name", "ego_vehicle")
+        self.reroute = self.get_param("reroute", True)
+        self.reroute_before_end = self.get_param("reroute_before_end", 50)
         self.control_time_step = self.get_param("control_time_step", 0.05)
         args_lateral_dict = {}
         args_lateral_dict['K_P'] = self.get_param("Kp_lateral", 0.9)
@@ -84,6 +87,8 @@ class LocalPlanner(CompatibleNode):
             Marker, "/carla/{}/next_target".format(role_name), QoSProfile(depth=10, durability=False))
         self._control_cmd_publisher = self.new_publisher(
             CarlaEgoVehicleControl, "/carla/{}/vehicle_control_cmd".format(role_name), QoSProfile(depth=1, durability=False))
+        self._random_goal_publisher = self.new_publisher(
+            Empty, "/carla/{}/create_random_goal".format(role_name), QoSProfile(depth=1, durability=False))
 
         # initializing controller
         self._vehicle_controller = VehiclePIDController(
@@ -179,6 +184,11 @@ class LocalPlanner(CompatibleNode):
                 self._waypoint_buffer.popleft()
 
         self._control_cmd_publisher.publish(control)
+
+        # Reroute if close to route end
+        if self.reroute == True and len(self._waypoints_queue) < self.reroute_before_end:
+            self._random_goal_publisher.publish(Empty())
+
         return
 
     def emergency_stop(self):
